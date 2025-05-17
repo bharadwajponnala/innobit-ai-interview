@@ -5,11 +5,11 @@ import Logo from "../Logo";
 
 const InterviewSuccess = () => {
   return (
-    <div className="min-h-screen bg-blue-50 text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-blue-50 text-gray-800 flex flex-col items-center justify-center">
       <Logo />
       <StatusMessage />
       <InterviewSummaryCard />
-      <ActionButtons />
+      {/* <ActionButtons /> */}
       <p className="text-xs text-gray-400 mt-8 mb-4">
         © 2025 InnobitAI. All rights reserved.
       </p>

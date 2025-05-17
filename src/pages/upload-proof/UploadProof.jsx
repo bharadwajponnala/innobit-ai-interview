@@ -34,16 +34,14 @@ function UploadProof() {
       return;
     }
 
+    setLoading(true); // ⏳ Start loading
+
     try {
       const [response] = await Promise.all([
         axios.post(
           "https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation",
-          {
-            email,
-            jobId,
-          }
+          { email, jobId }
         ),
-
         new Promise((resolve) => setTimeout(resolve, 2000)),
       ]);
 
@@ -58,6 +56,8 @@ function UploadProof() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false); // ✅ Stop loading (optional if you navigate away)
     }
   };
 
@@ -79,7 +79,6 @@ function UploadProof() {
             Identity theft is a crime. Using another person’s ID is strictly
             prohibited.
           </div>
-
           <UploadSection
             title="Upload Government ID (Front)"
             uploadLabel="Upload Front"
@@ -87,7 +86,6 @@ function UploadProof() {
             onUploadFile={(file) => setFrontFile(file)}
             onCaptureFile={(file) => setFrontFile(file)}
           />
-
           <UploadSection
             title="Upload Government ID (Back)"
             uploadLabel="Upload Back"
@@ -96,13 +94,15 @@ function UploadProof() {
             onCaptureFile={(file) => setBackFile(file)}
           />
           <CaptureSection onStartCamera={() => alert("Start Camera")} />
-
           <ConsentCheckbox
             isChecked={consent}
             onChange={() => setConsent(!consent)}
           />
-
-          <ProceedButton disabled={!consent} onClick={handleSubmit} />
+          <ProceedButton
+            disabled={!consent}
+            loading={loading}
+            onClick={handleSubmit}
+          />
         </div>
       </div>
     </div>
