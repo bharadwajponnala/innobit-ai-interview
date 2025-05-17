@@ -17,7 +17,7 @@ const VideoCallFrame = ({ videoUrl }) => {
       callFrame.join({ url: videoUrl });
 
       callFrame.on("joined-meeting", () => {
-        console.log("Joined video call");
+        console.log("Joined video call.");
       });
 
       return () => {
