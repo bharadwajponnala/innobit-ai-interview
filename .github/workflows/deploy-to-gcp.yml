@@ -1,0 +1,64 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    env:
+      REGION: ${{ secrets.GCP_REGION }}
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      AR_NAME: ${{ secrets.GCP_AR_NAME }}
+      IMAGE_NAME: react_interview_app
+      SERVICE_BASE_NAME: react-interview-app
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set Up Google Cloud SDK and Enable Docker Auth
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: Install CA Certificates and Update certifi
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --reinstall ca-certificates
+          pip install --upgrade certifi
+          openssl version
+          python3 --version
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev"
+
+      - name: Build and Push Docker Image to Artifact Registry
+        run: |
+          IMAGE_TAG="$REGION-docker.pkg.dev/$PROJECT_ID/$AR_NAME/$IMAGE_NAME:${{ github.sha }}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          docker build -t "$IMAGE_TAG" .
+          docker push "$IMAGE_TAG"
+
+      - name: Deploy to Cloud Run
+        run: |
+          BRANCH_NAME=$(echo "${GITHUB_REF}" | sed 's/refs\/heads\///')
+          SERVICE_NAME="$SERVICE_BASE_NAME-$BRANCH_NAME"
+          REVISION_SUFFIX=$(date +'%Y%m%d%H%M%S')
+
+          gcloud run deploy "$SERVICE_NAME" \
+            --image "$IMAGE_TAG" \
+            --platform managed \
+            --region "$REGION" \
+            --allow-unauthenticated \
+            --revision-suffix="$REVISION_SUFFIX"

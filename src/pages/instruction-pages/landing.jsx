@@ -1,10 +1,22 @@
 import { FaShieldAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setQueryParams } = useAppContext();
+
+  // Extract query parameters from the URL
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get("email");
+  const jobId = searchParams.get("jobId");
+
+  console.log("Email:", email);
+  console.log("Job ID:", jobId);
 
   const handleStartVerification = () => {
+    setQueryParams({ email, jobId });
     navigate("/instructions");
   };
   return (

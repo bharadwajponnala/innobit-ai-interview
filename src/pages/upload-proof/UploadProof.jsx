@@ -5,14 +5,18 @@ import CaptureSection from "./CaptureSection";
 import ConsentCheckbox from "./ConsentCheckbox";
 import ProceedButton from "./ProceedButton";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
 
 function UploadProof() {
+  const { queryParams } = useAppContext();
   const [consent, setConsent] = useState(false);
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = () => {
+    console.log("Email in Upload:", queryParams.email);
+    console.log("Job ID in Upload:", queryParams.jobId);
     if (!frontFile || !backFile) {
       alert("Please upload or capture both front and back images.");
       return;
@@ -21,6 +25,8 @@ function UploadProof() {
   };
 
   const fetchDataAndDelay = async () => {
+    const { email, jobId } = queryParams; // Extract email and jobId from context
+
     try {
       const postData = {
         replica_id: "rb17cf590e15",
@@ -29,13 +35,16 @@ function UploadProof() {
       };
 
       const [response, _] = await Promise.all([
-        fetch("http://127.0.0.1:8000/conversation", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(postData),
-        }).then((res) => res.json()),
+        fetch(
+            `https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation?email=${email}&jobId=${jobId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(postData),
+            }
+        ).then((res) => res.json()),
 
         new Promise((resolve) => setTimeout(resolve, 2000)),
       ]);
