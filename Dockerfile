@@ -6,6 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Copy the rest of the application files (including index.html)
+COPY . .
 
 RUN npm run build
 
