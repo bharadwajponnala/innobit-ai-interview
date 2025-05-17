@@ -25,40 +25,39 @@ function UploadProof() {
   };
 
   const fetchDataAndDelay = async () => {
-    const { email, jobId } = queryParams; // Extract email and jobId from context
+    const { email, jobId } = queryParams;
+
+    if (!email || !jobId) {
+      alert("Invalid session. Please start over.");
+      return;
+    }
 
     try {
-      const postData = {
-        replica_id: "rb17cf590e15",
-        conversation_name: "InnobitAI intro",
-        conversational_context: "Hi Manoj, welcome to Innobit AI.\n\n...",
-      };
-
-      const [response, _] = await Promise.all([
+      const [response] = await Promise.all([
         fetch(
-            `https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation?email=${email}&jobId=${jobId}`,
+            "https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(postData),
+              body: JSON.stringify({ email, jobId }),
             }
         ).then((res) => res.json()),
 
         new Promise((resolve) => setTimeout(resolve, 2000)),
       ]);
 
-      // ✅ Extract videoUrl from response
-      if (response.videoUrl) {
-        navigate("/interview-room", { state: { videoUrl: response.videoUrl } });
+      if (response.conversation_url) {
+        navigate("/interview-room", { state: { videoUrl: response.conversation_url } });
       } else {
-        console.error("No videoUrl found in response:", response);
+        console.error("No conversation_url found in response:", response);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 text-gray-800">
