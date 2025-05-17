@@ -1,0 +1,28 @@
+/* Attempt to hide the entire tray bar inside the Daily iframe */
+iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+}
+
+/* Apply styles to the parent container */
+.video-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* Fix button alignment */
+.controls {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.start-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+}
