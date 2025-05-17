@@ -6,6 +6,7 @@ import ConsentCheckbox from "./ConsentCheckbox";
 import ProceedButton from "./ProceedButton";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
+import axios from "axios";
 
 function UploadProof() {
   const { queryParams } = useAppContext();
@@ -13,6 +14,7 @@ function UploadProof() {
   const [frontFile, setFrontFile] = useState(null);
   const [backFile, setBackFile] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
     console.log("Email in Upload:", queryParams.email);
@@ -34,30 +36,30 @@ function UploadProof() {
 
     try {
       const [response] = await Promise.all([
-        fetch(
-            "https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email, jobId }),
-            }
-        ).then((res) => res.json()),
+        axios.post(
+          "https://tavus-conversation-app-main-901971977632.us-central1.run.app/conversation",
+          {
+            email,
+            jobId,
+          }
+        ),
 
         new Promise((resolve) => setTimeout(resolve, 2000)),
       ]);
 
-      if (response.conversation_url) {
-        navigate("/interview-room", { state: { videoUrl: response.conversation_url } });
+      const data = response.data;
+
+      if (data.conversation_url) {
+        navigate("/interview-room", {
+          state: { videoUrl: data.conversation_url },
+        });
       } else {
-        console.error("No conversation_url found in response:", response);
+        console.error("No conversation_url found in response:", data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 text-gray-800">

@@ -9,12 +9,35 @@ const VideoCallFrame = ({ videoUrl }) => {
 
   const callFrame = useCallFrame({
     parentElRef: callRef,
-    // Optional: add iframe styling or options here
+    options: {
+      iframeStyle: {
+        position: "fixed",
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        height: "100%",
+        border: "0",
+      },
+      showParticipantsBar: false,
+      // showLeaveButton: false,
+      dailyConfig: {
+        ...{
+          activeSpeakerMode: false,
+          showFullscreenButton: false,
+          showParticipantsBar: false,
+          customTrayButtons: {},
+          hideDefaultUI: true,
+        },
+      },
+    },
   });
 
   useEffect(() => {
     if (callFrame && videoUrl) {
-      callFrame.join({ url: videoUrl });
+      callFrame.join({
+        url: videoUrl,
+        activeSpeakerMode: false,
+      });
 
       callFrame.on("joined-meeting", () => {
         console.log("Joined video call.");
@@ -33,8 +56,8 @@ const VideoCallFrame = ({ videoUrl }) => {
 // ✅ Main VideoInterview component
 const VideoInterview = () => {
   const location = useLocation();
-  // const videoUrl = location.state?.videoUrl;
-  const videoUrl = { conversation_url: "https://tavus.daily.co/c09f1206c82a" };
+  const videoUrl = location.state?.videoUrl;
+  // const videoUrl = { conversation_url: "https://tavus.daily.co/cd81d9723682" };
 
   console.log("videoUrl", videoUrl);
 
@@ -48,7 +71,7 @@ const VideoInterview = () => {
 
   return (
     <DailyProvider>
-      <VideoCallFrame videoUrl={videoUrl?.conversation_url} />
+      <VideoCallFrame videoUrl={videoUrl} />
       <div
         className="controls"
         style={{
