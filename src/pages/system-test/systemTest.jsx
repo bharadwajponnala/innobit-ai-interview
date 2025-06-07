@@ -171,37 +171,84 @@ function SystemTest() {
     setSpeakerPassed(true);
   };
 
+  // useEffect(() => {
+  //   const getDevices = async () => {
+  //     const devices = await navigator.mediaDevices.enumerateDevices();
+  //     const cams = devices.filter((d) => d.kind === "videoinput");
+  //     const micList = devices.filter((d) => d.kind === "audioinput");
+  //     const speakerList = devices.filter((d) => d.kind === "audiooutput");
+
+  //     setCameras(cams);
+  //     setMics(micList);
+  //     setSpeakers(speakerList);
+
+  //     if (cams.length > 0) {
+  //       setCamera(cams[0].deviceId);
+  //       setSelectedCamId(cams[0].deviceId);
+  //       setSelectedCamLabel(cams[0].label);
+  //     }
+
+  //     if (micList.length > 0) {
+  //       setMic(micList[0].deviceId);
+  //       setSelectedMicId(micList[0].deviceId);
+  //       setSelectedMicLabel(micList[0].label);
+  //     }
+
+  //     if (speakerList.length > 0) {
+  //       setSpeaker(speakerList[0].deviceId);
+  //       setSelectedSpeakerId(speakerList[0].deviceId);
+  //       setSelectedSpeakerLabel(speakerList[0].label);
+  //     }
+  //   };
+
+  //   getDevices();
+  // }, []);
+
   useEffect(() => {
-    const getDevices = async () => {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cams = devices.filter((d) => d.kind === "videoinput");
-      const micList = devices.filter((d) => d.kind === "audioinput");
-      const speakerList = devices.filter((d) => d.kind === "audiooutput");
+    const getInitialPermissionsAndDevices = async () => {
+      try {
+        // Request camera and microphone access just once
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
 
-      setCameras(cams);
-      setMics(micList);
-      setSpeakers(speakerList);
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cams = devices.filter((d) => d.kind === "videoinput");
+        const micList = devices.filter((d) => d.kind === "audioinput");
+        const speakerList = devices.filter((d) => d.kind === "audiooutput");
 
-      if (cams.length > 0) {
-        setCamera(cams[0].deviceId);
-        setSelectedCamId(cams[0].deviceId);
-        setSelectedCamLabel(cams[0].label);
-      }
+        setCameras(cams);
+        setMics(micList);
+        setSpeakers(speakerList);
 
-      if (micList.length > 0) {
-        setMic(micList[0].deviceId);
-        setSelectedMicId(micList[0].deviceId);
-        setSelectedMicLabel(micList[0].label);
-      }
+        // Default camera
+        if (cams.length > 0) {
+          setCamera(cams[0].deviceId);
+          setSelectedCamId(cams[0].deviceId);
+          setSelectedCamLabel(cams[0].label);
+        }
 
-      if (speakerList.length > 0) {
-        setSpeaker(speakerList[0].deviceId);
-        setSelectedSpeakerId(speakerList[0].deviceId);
-        setSelectedSpeakerLabel(speakerList[0].label);
+        // Default microphone
+        if (micList.length > 0) {
+          setMic(micList[0].deviceId);
+          setSelectedMicId(micList[0].deviceId);
+          setSelectedMicLabel(micList[0].label);
+        }
+
+        // Default speaker
+        if (speakerList.length > 0) {
+          setSpeaker(speakerList[0].deviceId);
+          setSelectedSpeakerId(speakerList[0].deviceId);
+          setSelectedSpeakerLabel(speakerList[0].label);
+        }
+      } catch (error) {
+        console.error("Media device access error:", error);
       }
     };
 
-    getDevices();
+    getInitialPermissionsAndDevices();
+
+    return () => {
+      stopAllMedia(); // Cleanup on unmount
+    };
   }, []);
 
   useEffect(() => {
